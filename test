@@ -1,0 +1,39 @@
+/**
+* @brief Calculate CRC32 
+* @param pointer to source buffer 
+* @retval calculated CRC value 
+*/
+#define DEFAULT_CRC32_POLY 0x04C11DB7 /*!< X^32U + X^26U + X^23U + X^22U + X^16U + X^12U + X^11U + X^10U +X^8U + X^7U + X^5U + X^4U + X^2U+ X +1U */
+#define WIDTH (8 * sizeof(int))
+#define TOPBIT (1 << (WIDTH - 1))
+
+uint32_t CRC32_Calculate( uint32_t pBuffer[], uint32_t BufferLength)
+{
+int bindex = 0;
+int size = 4 * 8;
+int temp = 0;
+
+uint32_t CRC = 0xFFFFFFFFU;;
+for(int i = 0;i < BufferLength;i++)
+ {
+ //Reverse MSB via LSB
+ ((char*)&temp)[3] = ((char*)(&(pBuffer[i])))[0];
+ ((char*)&temp)[2] = ((char*)(&(pBuffer[i])))[1];
+ ((char*)&temp)[1] = ((char*)(&(pBuffer[i])))[2];
+ ((char*)&temp)[0] = ((char*)(&(pBuffer[i])))[3];
+ 
+ CRC = CRC ^ pBuffer[i];
+ for(bindex = 0;bindex < size;bindex++)
+  {
+  if ((CRC & TOPBIT) != 0)
+   {
+   CRC = (CRC << 1) ^ DEFAULT_CRC32_POLY;
+   }
+  else
+   {
+   CRC = (CRC << 1);
+   }
+  }
+ }
+ return CRC;
+} // end of CRC
